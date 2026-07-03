@@ -1,0 +1,39 @@
+{
+  "name": "validate-api",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Stateless validation & utility toolkit API (IBAN, VAT, phone, email, credit card, password) for the RapidAPI marketplace.",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "dev:node": "tsx watch src/server.ts",
+    "build": "tsc --noEmit",
+    "build:node": "tsc -p tsconfig.build.json",
+    "lint": "eslint src test --ext .ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "coverage": "vitest run --coverage",
+    "deploy": "wrangler deploy",
+    "start:node": "node dist/server.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.13.7",
+    "hono": "^4.6.14",
+    "libphonenumber-js": "^1.11.17"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20241224.0",
+    "@types/node": "^22.10.5",
+    "@typescript-eslint/eslint-plugin": "^8.19.0",
+    "@typescript-eslint/parser": "^8.19.0",
+    "@vitest/coverage-v8": "^2.1.8",
+    "eslint": "^8.57.1",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8",
+    "wrangler": "^3.99.0"
+  }
+}

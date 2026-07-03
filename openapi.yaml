@@ -1,0 +1,317 @@
+openapi: 3.0.3
+info:
+  title: Validate API
+  description: >
+    Stateless validation & utility toolkit: IBAN, EU VAT, email, phone, and
+    credit-card format validation, password strength/breach checks, and
+    UUID/password generators. No data is persisted; nothing sensitive
+    (passwords, full card numbers) is ever logged.
+  version: "1.0.0"
+  contact:
+    name: API support
+    email: jonashaemmerle0504@gmail.com
+servers:
+  - url: https://validate-api.<your-subdomain>.workers.dev
+    description: Production (replace <your-subdomain> after first deploy)
+
+paths:
+  /health:
+    get:
+      operationId: health
+      summary: Liveness check
+      security: []
+      responses:
+        "200":
+          description: Service is up
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status: { type: string, example: ok }
+                  timestamp: { type: string, format: date-time }
+
+  /v1/validate/iban:
+    post:
+      operationId: validateIban
+      summary: Validate an IBAN (ISO 13616 mod-97 checksum)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [iban]
+              properties:
+                iban: { type: string, example: "DE89370400440532013000" }
+      responses:
+        "200":
+          description: Validation result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  valid: { type: boolean }
+                  formatted: { type: string, nullable: true }
+                  countryCode: { type: string, nullable: true }
+                  checkDigits: { type: string, nullable: true }
+                  bban: { type: string, nullable: true }
+                  errors: { type: array, items: { type: string } }
+        "400": { $ref: "#/components/responses/BadRequest" }
+
+  /v1/validate/vat:
+    post:
+      operationId: validateVat
+      summary: Validate an EU VAT number's format, and optionally its existence via VIES
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [countryCode, vatNumber]
+              properties:
+                countryCode: { type: string, example: "DE" }
+                vatNumber: { type: string, example: "123456789" }
+                checkExistence: { type: boolean, default: true, description: "Set false to skip the live VIES lookup and only check format" }
+      responses:
+        "200":
+          description: Validation result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  formatValid: { type: boolean }
+                  countryCode: { type: string }
+                  vatNumber: { type: string }
+                  errors: { type: array, items: { type: string } }
+                  existence:
+                    type: object
+                    nullable: true
+                    properties:
+                      checked: { type: boolean }
+                      valid: { type: boolean, nullable: true }
+                      name: { type: string, nullable: true }
+                      address: { type: string, nullable: true }
+                      source: { type: string }
+        "400": { $ref: "#/components/responses/BadRequest" }
+
+  /v1/validate/email:
+    post:
+      operationId: validateEmail
+      summary: Validate email syntax, and optionally check for MX records
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email: { type: string, example: "user@example.com" }
+                checkMx: { type: boolean, default: true }
+      responses:
+        "200":
+          description: Validation result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  syntaxValid: { type: boolean }
+                  localPart: { type: string, nullable: true }
+                  domain: { type: string, nullable: true }
+                  errors: { type: array, items: { type: string } }
+                  mx:
+                    type: object
+                    nullable: true
+                    properties:
+                      checked: { type: boolean }
+                      hasMx: { type: boolean, nullable: true }
+                      records: { type: array, items: { type: string } }
+        "400": { $ref: "#/components/responses/BadRequest" }
+
+  /v1/validate/phone:
+    post:
+      operationId: validatePhone
+      summary: Validate and format a phone number (libphonenumber rules)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [phone]
+              properties:
+                phone: { type: string, example: "+49 30 12345678" }
+                defaultCountry: { type: string, example: "DE", description: "ISO 3166-1 alpha-2, used when the number has no country code" }
+      responses:
+        "200":
+          description: Validation result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  valid: { type: boolean }
+                  country: { type: string, nullable: true }
+                  countryCallingCode: { type: string }
+                  type: { type: string, nullable: true }
+                  e164: { type: string }
+                  international: { type: string }
+                  national: { type: string }
+                  errors: { type: array, items: { type: string } }
+        "400": { $ref: "#/components/responses/BadRequest" }
+
+  /v1/validate/creditcard:
+    post:
+      operationId: validateCreditCard
+      summary: Validate a credit card number's format (Luhn checksum + brand detection)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [number]
+              properties:
+                number: { type: string, example: "4111111111111111" }
+      responses:
+        "200":
+          description: Validation result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  valid: { type: boolean }
+                  brand: { type: string }
+                  luhnValid: { type: boolean }
+                  formatted: { type: string, nullable: true }
+                  errors: { type: array, items: { type: string } }
+        "400": { $ref: "#/components/responses/BadRequest" }
+
+  /v1/password/strength:
+    post:
+      operationId: passwordStrength
+      summary: Score a password's strength (local, entropy-based — password is not stored)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [password]
+              properties:
+                password: { type: string }
+      responses:
+        "200":
+          description: Strength result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  score: { type: integer, minimum: 0, maximum: 100 }
+                  label: { type: string, enum: [very-weak, weak, fair, strong, very-strong] }
+                  entropyBits: { type: number }
+                  suggestions: { type: array, items: { type: string } }
+        "400": { $ref: "#/components/responses/BadRequest" }
+
+  /v1/password/breach-check:
+    post:
+      operationId: passwordBreachCheck
+      summary: Check if a password appears in known breaches (HIBP k-anonymity, full password never leaves the request)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [password]
+              properties:
+                password: { type: string }
+      responses:
+        "200":
+          description: Breach check result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  checked: { type: boolean }
+                  breached: { type: boolean, nullable: true }
+                  occurrences: { type: integer }
+        "400": { $ref: "#/components/responses/BadRequest" }
+
+  /v1/generate/uuid:
+    get:
+      operationId: generateUuid
+      summary: Generate one or more UUID v4 values
+      parameters:
+        - name: count
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 100, default: 1 }
+      responses:
+        "200":
+          description: Generated UUIDs
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  uuids: { type: array, items: { type: string, format: uuid } }
+        "400": { $ref: "#/components/responses/BadRequest" }
+
+  /v1/generate/password:
+    get:
+      operationId: generatePassword
+      summary: Generate a cryptographically random password
+      parameters:
+        - name: length
+          in: query
+          schema: { type: integer, minimum: 4, maximum: 128, default: 16 }
+        - name: symbols
+          in: query
+          schema: { type: boolean, default: true }
+        - name: numbers
+          in: query
+          schema: { type: boolean, default: true }
+        - name: uppercase
+          in: query
+          schema: { type: boolean, default: true }
+        - name: lowercase
+          in: query
+          schema: { type: boolean, default: true }
+      responses:
+        "200":
+          description: Generated password
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  password: { type: string }
+                  length: { type: integer }
+        "400": { $ref: "#/components/responses/BadRequest" }
+
+components:
+  responses:
+    BadRequest:
+      description: Invalid request body or query parameters
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error: { type: string }
+              message: { type: string }
+  securitySchemes:
+    RapidAPIProxySecret:
+      type: apiKey
+      in: header
+      name: X-RapidAPI-Proxy-Secret
+security:
+  - RapidAPIProxySecret: []

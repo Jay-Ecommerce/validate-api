@@ -1,0 +1,10 @@
+services:
+  validate-api:
+    build: .
+    ports:
+      - "8787:8787"
+    environment:
+      PORT: "8787"
+      RAPIDAPI_PROXY_SECRET: ${RAPIDAPI_PROXY_SECRET:?set RAPIDAPI_PROXY_SECRET in .env}
+      ALLOW_DIRECT_ACCESS: ${ALLOW_DIRECT_ACCESS:-false}
+    restart: unless-stopped
