@@ -21,9 +21,9 @@ Subscribe on the [Validate API listing on RapidAPI](https://rapidapi.com/search/
 to get your `X-RapidAPI-Key`.
 
 ```bash
-curl -X POST "https://validate.p.rapidapi.com/v1/validate/iban" \
+curl -X POST "https://validate7.p.rapidapi.com/v1/validate/iban" \
   -H "X-RapidAPI-Key: <your-rapidapi-key>" \
-  -H "X-RapidAPI-Host: validate.p.rapidapi.com" \
+  -H "X-RapidAPI-Host: validate7.p.rapidapi.com" \
   -H "Content-Type: application/json" \
   -d '{"iban": "DE89370400440532013000"}'
 # => {"valid":true,"formatted":"DE89 3704 0044 0532 0130 00","countryCode":"DE","checkDigits":"89","bban":"370400440532013000","errors":[]}
