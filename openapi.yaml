@@ -11,7 +11,7 @@ info:
     name: API support
     email: jonashaemmerle0504@gmail.com
 servers:
-  - url: https://validate-api.<your-subdomain>.workers.dev
+  - url: https://validate-api.jay-trading.workers.dev
     description: Production (replace <your-subdomain> after first deploy)
 
 paths:
