@@ -1,0 +1,21 @@
+name: LinkedIn 3x/week posts
+
+on:
+  schedule:
+    - cron: "0 14 * * 1" # Monday 14:00 UTC
+    - cron: "0 14 * * 3" # Wednesday 14:00 UTC
+    - cron: "0 14 * * 5" # Friday 14:00 UTC
+  workflow_dispatch: {}
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: node scripts/marketing/linkedin-post.mjs
+        env:
+          LINKEDIN_ACCESS_TOKEN: ${{ secrets.LINKEDIN_ACCESS_TOKEN }}
+          LINKEDIN_PERSON_URN: ${{ secrets.LINKEDIN_PERSON_URN }}
