@@ -15,6 +15,36 @@ customers. See [DECISIONS.md](./DECISIONS.md) for the full reasoning and
 [RUNBOOK.md](./RUNBOOK.md) for the one-time manual setup required before it
 can earn anything.
 
+## Usage
+
+Subscribe on the [Validate API listing on RapidAPI](https://rapidapi.com/search/validate)
+to get your `X-RapidAPI-Key`.
+
+```bash
+curl -X POST "https://validate.p.rapidapi.com/v1/validate/iban" \
+  -H "X-RapidAPI-Key: <your-rapidapi-key>" \
+  -H "X-RapidAPI-Host: validate.p.rapidapi.com" \
+  -H "Content-Type: application/json" \
+  -d '{"iban": "DE89370400440532013000"}'
+# => {"valid":true,"formatted":"DE89 3704 0044 0532 0130 00","countryCode":"DE","checkDigits":"89","bban":"370400440532013000","errors":[]}
+```
+
+| Endpoint | Body | Notes |
+|---|---|---|
+| `POST /v1/validate/iban` | `{"iban": "DE89370400440532013000"}` | Mod-97 checksum, no external calls |
+| `POST /v1/validate/vat` | `{"countryCode": "IE", "vatNumber": "6388047V", "checkExistence": true}` | `checkExistence: false` skips the live VIES lookup |
+| `POST /v1/validate/email` | `{"email": "user@example.com", "checkMx": true}` | `checkMx: false` skips the DNS lookup |
+| `POST /v1/validate/phone` | `{"phone": "+491701234567"}` | `defaultCountry` (e.g. `"DE"`) needed if the number has no `+CC` prefix |
+| `POST /v1/validate/creditcard` | `{"number": "4111111111111111"}` | Luhn checksum + brand detection, format only (no card networks are called) |
+| `POST /v1/password/strength` | `{"password": "Tr0ub4dor&3"}` | Local entropy scoring, password is never stored or logged |
+| `POST /v1/password/breach-check` | `{"password": "..."}` | HIBP k-anonymity — only a 5-char hash prefix leaves the request |
+| `GET /v1/generate/uuid?count=5` | — | 1-100 UUID v4s |
+| `GET /v1/generate/password?length=20&symbols=true` | — | Cryptographically random |
+| `GET /health` | — | No API key required, used for uptime checks |
+
+Full request/response schemas: [openapi.yaml](./openapi.yaml) (also what's
+imported into the RapidAPI listing to generate its docs).
+
 ## Architecture
 
 ```
