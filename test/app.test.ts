@@ -97,6 +97,28 @@ describe("route smoke tests", () => {
     expect(res.status).toBe(400);
   });
 
+  it("POST /v1/validate/disposable-email flags a known disposable domain", async () => {
+    const res = await app.request(
+      "/v1/validate/disposable-email",
+      { method: "POST", headers: AUTH_HEADERS, body: JSON.stringify({ email: "test@mailinator.com" }) },
+      TEST_ENV,
+    );
+    expect(res.status).toBe(200);
+    const body = await readJson(res);
+    expect(body.disposable).toBe(true);
+  });
+
+  it("POST /v1/validate/postal-code returns a validation result", async () => {
+    const res = await app.request(
+      "/v1/validate/postal-code",
+      { method: "POST", headers: AUTH_HEADERS, body: JSON.stringify({ countryCode: "US", postalCode: "94103" }) },
+      TEST_ENV,
+    );
+    expect(res.status).toBe(200);
+    const body = await readJson(res);
+    expect(body.valid).toBe(true);
+  });
+
   it("unknown route returns 404 json", async () => {
     const res = await app.request("/v1/does-not-exist", { headers: AUTH_HEADERS }, TEST_ENV);
     expect(res.status).toBe(404);

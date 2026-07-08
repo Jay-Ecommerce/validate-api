@@ -7,6 +7,10 @@ compatibility_flags = ["nodejs_compat"]
 [observability]
 enabled = true
 
+[[kv_namespaces]]
+binding = "EMAIL_SIGNUPS"
+id = "61fbc29692724fa4b16e28944610b2ea"
+
 # Secrets (set via `wrangler secret put <NAME>`, never committed):
 #   RAPIDAPI_PROXY_SECRET  - value RapidAPI sends in X-RapidAPI-Proxy-Secret, verified per request
 #   ALLOW_DIRECT_ACCESS    - "true" only for local/dev testing without RapidAPI in front

@@ -4,6 +4,8 @@ import { validateIban } from "../lib/iban.js";
 import { checkVatFormat, checkVatExistence } from "../lib/vat.js";
 import { checkEmailSyntax, checkMxRecords } from "../lib/email.js";
 import { validateCreditCard } from "../lib/creditcard.js";
+import { checkDisposableEmail } from "../lib/disposableEmail.js";
+import { validatePostalCode, supportedPostalCountries } from "../lib/postalCode.js";
 import { parseJsonBody } from "../lib/http.js";
 
 export const validateRoute = new Hono();
@@ -79,4 +81,24 @@ validateRoute.post("/v1/validate/creditcard", async (c) => {
     return c.json({ error: "bad_request", message: "Field 'number' (string) is required" }, 400);
   }
   return c.json(validateCreditCard(body.number));
+});
+
+validateRoute.post("/v1/validate/disposable-email", async (c) => {
+  const body = await parseJsonBody<{ email?: string }>(c);
+  if (!body?.email || typeof body.email !== "string") {
+    return c.json({ error: "bad_request", message: "Field 'email' (string) is required" }, 400);
+  }
+  return c.json(checkDisposableEmail(body.email));
+});
+
+validateRoute.post("/v1/validate/postal-code", async (c) => {
+  const body = await parseJsonBody<{ countryCode?: string; postalCode?: string }>(c);
+  if (!body?.countryCode || !body.postalCode) {
+    return c.json({ error: "bad_request", message: "Fields 'countryCode' and 'postalCode' (strings) are required" }, 400);
+  }
+  return c.json(validatePostalCode(body.countryCode, body.postalCode));
+});
+
+validateRoute.get("/v1/validate/postal-code/countries", (c) => {
+  return c.json({ countries: supportedPostalCountries() });
 });

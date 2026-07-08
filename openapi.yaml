@@ -2,17 +2,18 @@ openapi: 3.0.3
 info:
   title: Validate API
   description: >
-    Stateless validation & utility toolkit: IBAN, EU VAT, email, phone, and
-    credit-card format validation, password strength/breach checks, and
-    UUID/password generators. No data is persisted; nothing sensitive
-    (passwords, full card numbers) is ever logged.
+    Stateless validation & utility toolkit: IBAN, EU VAT, email (incl.
+    disposable/temp-mail detection), phone, credit-card, and postal-code
+    format validation, password strength/breach checks, and UUID/password
+    generators. No data is persisted; nothing sensitive (passwords, full
+    card numbers) is ever logged.
   version: "1.0.0"
   contact:
     name: API support
     email: jonashaemmerle0504@gmail.com
 servers:
   - url: https://validate-api.jay-trading.workers.dev
-    description: Production (replace <your-subdomain> after first deploy)
+    description: Production
 
 paths:
   /health:
@@ -132,6 +133,84 @@ paths:
                       hasMx: { type: boolean, nullable: true }
                       records: { type: array, items: { type: string } }
         "400": { $ref: "#/components/responses/BadRequest" }
+
+  /v1/validate/disposable-email:
+    post:
+      operationId: validateDisposableEmail
+      summary: Detect throwaway/temp-mail addresses (Mailinator, Guerrilla Mail, 10minutemail, etc.)
+      description: >
+        Checks the email domain against a curated list of known disposable/temp-mail
+        providers. Use this alongside /v1/validate/email to reject fake-account
+        signups without blocking real users' free-webmail addresses.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email: { type: string, example: "test@mailinator.com" }
+      responses:
+        "200":
+          description: Detection result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  syntaxValid: { type: boolean }
+                  domain: { type: string, nullable: true }
+                  disposable: { type: boolean, nullable: true }
+                  errors: { type: array, items: { type: string } }
+        "400": { $ref: "#/components/responses/BadRequest" }
+
+  /v1/validate/postal-code:
+    post:
+      operationId: validatePostalCode
+      summary: Validate a postal/ZIP code's format for a given country (50+ countries)
+      description: >
+        Checks postal code structure/format only (like a checksum check) —
+        does not verify the code is currently in use by a postal service.
+        See /v1/validate/postal-code/countries for the full supported list.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [countryCode, postalCode]
+              properties:
+                countryCode: { type: string, example: "US", description: "ISO 3166-1 alpha-2" }
+                postalCode: { type: string, example: "94103" }
+      responses:
+        "200":
+          description: Validation result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  valid: { type: boolean }
+                  countryCode: { type: string }
+                  postalCode: { type: string }
+                  supported: { type: boolean, description: "Whether this country's format is known to the API" }
+                  errors: { type: array, items: { type: string } }
+        "400": { $ref: "#/components/responses/BadRequest" }
+
+  /v1/validate/postal-code/countries:
+    get:
+      operationId: listSupportedPostalCountries
+      summary: List ISO country codes with a known postal code format
+      responses:
+        "200":
+          description: Supported countries
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  countries: { type: array, items: { type: string } }
 
   /v1/validate/phone:
     post:

@@ -67,6 +67,54 @@ has MX records (i.e. can actually receive mail).
 
 ---
 
+## POST /v1/validate/disposable-email
+
+**Description:** Flags throwaway/temp-mail addresses (Mailinator, Guerrilla
+Mail, 10-minute-mail, YOPmail, and 80+ other known providers, including their
+subdomains). Use alongside `/v1/validate/email` to block fake-account
+signups without rejecting real free-webmail addresses (Gmail, Outlook, etc.
+are never flagged).
+
+**Parameters:**
+- `email` (string, required) — the email address to check. Example: `test@mailinator.com`
+
+**Example response:**
+```json
+{"syntaxValid": true, "domain": "mailinator.com", "disposable": true, "errors": []}
+```
+
+---
+
+## POST /v1/validate/postal-code
+
+**Description:** Validates a postal/ZIP code's format for a given country
+(50+ countries covered — US, CA, GB, DE, FR, and most of EU/APAC/LatAm).
+Format check only, like the IBAN checksum — does not confirm the code is
+currently assigned by the country's postal service.
+
+**Parameters:**
+- `countryCode` (string, required) — ISO 3166-1 alpha-2. Example: `US`
+- `postalCode` (string, required) — Example: `94103`
+
+**Example response:**
+```json
+{"valid": true, "countryCode": "US", "postalCode": "94103", "supported": true, "errors": []}
+```
+
+---
+
+## GET /v1/validate/postal-code/countries
+
+**Description:** Lists the ISO country codes this API has a known postal
+code format for.
+
+**Example response:**
+```json
+{"countries": ["AR", "AT", "AU", "..."]}
+```
+
+---
+
 ## POST /v1/validate/phone
 
 **Description:** Validates and formats a phone number using libphonenumber

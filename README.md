@@ -34,8 +34,11 @@ curl -X POST "https://validate7.p.rapidapi.com/v1/validate/iban" \
 | `POST /v1/validate/iban` | `{"iban": "DE89370400440532013000"}` | Mod-97 checksum, no external calls |
 | `POST /v1/validate/vat` | `{"countryCode": "IE", "vatNumber": "6388047V", "checkExistence": true}` | `checkExistence: false` skips the live VIES lookup |
 | `POST /v1/validate/email` | `{"email": "user@example.com", "checkMx": true}` | `checkMx: false` skips the DNS lookup |
+| `POST /v1/validate/disposable-email` | `{"email": "test@mailinator.com"}` | Flags throwaway/temp-mail domains (incl. subdomains) |
 | `POST /v1/validate/phone` | `{"phone": "+491701234567"}` | `defaultCountry` (e.g. `"DE"`) needed if the number has no `+CC` prefix |
 | `POST /v1/validate/creditcard` | `{"number": "4111111111111111"}` | Luhn checksum + brand detection, format only (no card networks are called) |
+| `POST /v1/validate/postal-code` | `{"countryCode": "US", "postalCode": "94103"}` | Format validation for 50+ countries, no external calls |
+| `GET /v1/validate/postal-code/countries` | — | Lists supported country codes |
 | `POST /v1/password/strength` | `{"password": "Tr0ub4dor&3"}` | Local entropy scoring, password is never stored or logged |
 | `POST /v1/password/breach-check` | `{"password": "..."}` | HIBP k-anonymity — only a 5-char hash prefix leaves the request |
 | `GET /v1/generate/uuid?count=5` | — | 1-100 UUID v4s |
