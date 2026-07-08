@@ -10,6 +10,8 @@ export interface LandingEnv {
 
 export const landingRoute = new Hono<LandingEnv>();
 
+const RAPIDAPI_LISTING = "https://rapidapi.com/jonashaemecommerce/api/validate7";
+
 const STRUCTURED_DATA = {
   "@context": "https://schema.org",
   "@type": "WebAPI",
@@ -22,6 +24,7 @@ const STRUCTURED_DATA = {
     price: "0",
     priceCurrency: "USD",
     description: "Free tier available, paid tiers on RapidAPI",
+    url: RAPIDAPI_LISTING,
   },
   provider: {
     "@type": "Organization",
@@ -68,12 +71,30 @@ const PAGE_HTML = `<!doctype html>
   <li><code>POST /v1/validate/phone</code> — international phone number validation</li>
   <li><code>POST /v1/validate/creditcard</code> — Luhn check + card brand detection</li>
   <li><code>POST /v1/validate/postal-code</code> — postal code format validation (50+ countries)</li>
+  <li><code>GET /v1/validate/postal-code/countries</code> — list supported postal code countries</li>
   <li><code>POST /v1/password/strength</code> — entropy-based password strength scoring</li>
+  <li><code>POST /v1/password/breach-check</code> — HaveIBeenPwned k-anonymity breach check</li>
   <li><code>GET /v1/generate/uuid</code> — UUID generation</li>
+  <li><code>GET /v1/generate/password</code> — cryptographically random password generation</li>
 </ul>
 
 <h2>Pricing</h2>
-<p>Free tier plus paid tiers, billed and metered through RapidAPI. <a href="https://rapidapi.com/search/validate">See current plans on RapidAPI &rarr;</a></p>
+<p>Free tier plus paid tiers, billed and metered through RapidAPI. <a href="${RAPIDAPI_LISTING}">Get your API key &amp; see current plans on RapidAPI &rarr;</a></p>
+
+<h2>Why Validate instead of separate single-purpose APIs</h2>
+<ul>
+  <li><strong>One subscription, nine checks</strong> — most alternatives are one API per validation type (a VAT checker, a separate disposable-email checker, a separate postal-code checker), each with its own key, its own billing, its own rate limit. Validate is one key, one bill, one rate limit for all of it.</li>
+  <li><strong>Format-only where it matters</strong> — IBAN, credit card, and postal code checks are pure checksum/format logic with zero external calls, so they're fast and don't depend on a third party's uptime.</li>
+  <li><strong>Privacy-conscious by default</strong> — password breach checks use HaveIBeenPwned's k-anonymity protocol (only a 5-character hash prefix ever leaves your server, never the password); disposable-email detection and postal-code checks never store or log the input.</li>
+  <li><strong>Edge-deployed</strong> — runs on Cloudflare Workers, so response times don't depend on which region your users are in.</li>
+  <li><strong>Free tier with no credit card required</strong> to start evaluating.</li>
+</ul>
+
+<h2>Changelog</h2>
+<ul>
+  <li><strong>2026-07-08</strong> — Added <code>disposable-email</code> detection and <code>postal-code</code> format validation (50+ countries).</li>
+  <li><strong>2026-07-07</strong> — Initial launch: IBAN, VAT, email, phone, credit card, password strength/breach-check, UUID/password generation.</li>
+</ul>
 
 <h2>Get updates</h2>
 <form id="signup-form">
