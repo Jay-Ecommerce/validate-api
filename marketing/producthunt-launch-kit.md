@@ -13,8 +13,9 @@ kit exists to make the one real launch day go smoothly, nothing more.
 
 ## Description (short)
 
-A stateless validation API for IBAN, EU VAT, email, phone, and credit card
-formats — plus password strength and breach checks. No database, deployed at
+A stateless validation API for IBAN, EU VAT, email (incl. disposable/temp-mail
+detection), phone, credit card, and postal code (50+ countries) formats —
+plus password strength and breach checks. No database, deployed at
 Cloudflare's edge. Free tier, no card required.
 
 ## First comment (post this as the maker immediately after launch)
@@ -31,8 +32,11 @@ Cloudflare's edge. Free tier, no card required.
 > - **Free to start** — 100 requests/month on the free tier, no card required.
 >
 > Would love feedback, especially on what validation checks people wish
-> existed that aren't covered yet (currently: IBAN, VAT, email, phone, credit
-> card format, password strength/breach).
+> existed that aren't covered yet (currently: IBAN, VAT, email, disposable-
+> email detection, phone, credit card format, postal code, password
+> strength/breach).
+>
+> Landing page + docs: https://validate-api.jay-trading.workers.dev
 
 ## Gallery image ideas (need to be created — not auto-generated here)
 

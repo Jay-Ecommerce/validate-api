@@ -4,18 +4,12 @@ Status of each directory you listed:
 
 ## public-apis/public-apis (GitHub)
 
-Real, PR-based, mechanically automatable — but their CI lints entry format
-strictly (alphabetical order within category, exact table columns, working
-HTTPS link, no duplicate). Ready-to-submit entry below; I can open the actual
-PR on request rather than doing it unprompted, since a first PR under your
-GitHub identity is worth getting right rather than rushing.
-
-Entry (goes under an appropriate category, likely "### Development" or a new
-"Validation" subsection if the category structure allows it):
-
-```
-| [Validate](https://rapidapi.com/jonashaemecommerce/api/validate7) | IBAN, VAT, email, phone, credit card, and password validation | `apiKey` | Yes | Unknown |
-```
+**Done (2026-07-08):** opened as PR #6518 — https://github.com/public-apis/public-apis/pull/6518
+— added under the existing "Data Validation" category, inserted in the
+correct alphabetical position relative to its neighbor. Note: that category
+had a pre-existing alphabetical-order violation unrelated to this change
+(VATlayer listed before Lob.com) — if their CI flags order, it's likely
+that pre-existing issue, not the new entry. Watch the PR for review comments.
 
 ## APIs.guru (APIs-guru/openapi-directory)
 
@@ -31,6 +25,27 @@ guessing at their schema and shipping a PR likely to fail their CI.
 No public submission API found — appears to be a manual web-form submission.
 Not automatable; would need to be done by hand if you want to pursue it.
 
-## Next step
+## RapidAPI Collections
 
-Say the word and I'll open the actual public-apis PR with the entry above.
+Not a separate directory — this is a curation feature inside your existing
+RapidAPI provider dashboard for the account already used to list validate-api.
+Requires being logged into that dashboard; see the RapidAPI section of the
+final report for the exact manual steps.
+
+## Postman API Network
+
+Requires its own free Postman account + publishing a Postman Collection —
+account creation, so left for you to do (2026-07-08). Steps: create a
+Postman account, import `openapi.yaml`, publish the resulting collection to
+the Postman API Network from your workspace settings.
+
+## "Mashape"
+
+Mashape was RapidAPI's old name before a 2017 rebrand — this is the same
+marketplace validate-api is already listed on, not a separate directory.
+Nothing additional to do here.
+
+## "any.run"
+
+This is a malware-analysis sandbox, not an API directory — likely a mix-up
+in the original request. Skipped; let me know if a different site was meant.

@@ -14,8 +14,9 @@ history genuinely participating in the thread. This is just the draft text.
 
 We built a small stateless API for the input-validation checks almost every
 backend ends up re-implementing: IBAN (mod-97 checksum), EU VAT (format +
-optional live VIES lookup), email (syntax + optional MX record check), phone
-(libphonenumber), credit card format (Luhn + brand detection), and password
+optional live VIES lookup), email (syntax + optional MX record check),
+disposable/temp-mail detection, phone (libphonenumber), credit card format
+(Luhn + brand detection), postal code format (50+ countries), and password
 strength/breach checks (HaveIBeenPwned k-anonymity, so full passwords never
 leave your server).
 
