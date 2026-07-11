@@ -19,7 +19,7 @@ export function pick(pool, offset = 0) {
   return pool[idx];
 }
 
-const RAPIDAPI_HOST = "validate7.p.rapidapi.com";
+const RAPIDAPI_HOST = "rapidapi.com/jonashaemecommerce/api/validate7";
 const GITHUB_URL = "https://github.com/Jay-Ecommerce/validate-api";
 
 export const DEVTO_ARTICLES = [
@@ -184,6 +184,103 @@ async function domainCanReceiveMail(domain) {
 This won't catch every typo (an MX record existing doesn't mean the specific mailbox exists — that needs an actual SMTP handshake, which is slow, unreliable, and often blocked by mail servers as spam-probing behavior). But it's a strong, cheap signal that catches a meaningful chunk of junk signups before you send a verification email into the void.
 
 I run this as an optional flag on the email endpoint of [Validate](https://${RAPIDAPI_HOST}) — syntax check always runs, MX check is opt-in since it adds a DNS round-trip.`,
+  },
+  {
+    title: "How to validate email addresses properly in 2026",
+    tags: ["webdev", "api", "tutorial", "javascript"],
+    body: `"Just use a regex" is the most common wrong answer to email validation. Here's what actually matters, in the order it actually matters.
+
+**1. Syntax — but a permissive one.** The RFC 5322 spec technically allows things like quoted strings and comments in the local part, which almost no real mail provider uses. Don't implement the full spec; use a pragmatic check instead:
+
+\`\`\`js
+function looksLikeEmail(input) {
+  return /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(input);
+}
+\`\`\`
+
+This deliberately under-validates. A regex that's *too* strict will reject real addresses (plus-addressing, unusual-but-valid TLDs) more often than it catches typos — false rejections cost you signups, false acceptances just mean you fall through to the next check.
+
+**2. MX record lookup.** Syntax passing doesn't mean the domain can receive mail:
+
+\`\`\`js
+import { resolveMx } from "node:dns/promises";
+
+async function canReceiveMail(domain) {
+  try {
+    return (await resolveMx(domain)).length > 0;
+  } catch {
+    return false;
+  }
+}
+\`\`\`
+
+Catches typo'd domains (\`gmial.com\`) and abandoned/fake domains for basically zero added latency.
+
+**3. Disposable/temp-mail detection.** Syntax-valid, MX-valid, and still worthless for your product: throwaway addresses from 10minutemail, guerrillamail, mailinator, and hundreds of similar services that spin up new domains constantly. There's no algorithmic tell — you need a maintained domain blocklist (the community-run [disposable-email-domains](https://github.com/disposable-email-domains/disposable-email-domains) list is a solid free start, just budget time to keep it synced).
+
+**4. What you're deliberately *not* doing:** an SMTP handshake to check if the specific mailbox exists. It's slow, unreliable, and most mail servers now treat probing behavior as spam reconnaissance and silently no-op it. Don't build on a foundation that stopped being reliable.
+
+Put together, that's syntax (fast, always run) → MX (cheap, catches typos) → disposable-domain check (catches throwaway signups) — each step only worth running if the previous one passed. I built exactly this pipeline as endpoints on [Validate](https://${RAPIDAPI_HOST}) if you'd rather not maintain the MX/disposable-list plumbing yourself.`,
+  },
+  {
+    title: "IBAN validation guide for developers",
+    tags: ["webdev", "api", "tutorial", "banking"],
+    body: `IBAN validation trips people up because it looks like it should be a length check plus a regex, and it's neither. Here's the actual structure, in the order you should check it.
+
+**1. Length and country format.** Every IBAN starts with a 2-letter ISO country code and 2 check digits, followed by a country-specific BBAN whose length is fixed *per country* — Germany is always 22 characters, the Netherlands 18, Malta 31. A string can be the right shape (letters-then-digits) and still be the wrong length for the country it claims to be from.
+
+**2. The mod-97 checksum (ISO 7064).** This is the part people get wrong or skip:
+
+\`\`\`js
+function isValidIBAN(iban) {
+  const clean = iban.replace(/\\s+/g, "").toUpperCase();
+  if (!/^[A-Z]{2}\\d{2}[A-Z0-9]+$/.test(clean)) return false;
+
+  const rearranged = clean.slice(4) + clean.slice(0, 4);
+  const numeric = rearranged.replace(/[A-Z]/g, c => (c.charCodeAt(0) - 55).toString());
+
+  // IBANs convert to numbers far too large for JS's Number type (30+ digits),
+  // so mod 97 has to be computed in chunks rather than in one BigInt/Number op.
+  let remainder = numeric;
+  while (remainder.length > 2) {
+    const chunk = remainder.slice(0, 9);
+    remainder = (parseInt(chunk, 10) % 97) + remainder.slice(chunk.length);
+  }
+  return parseInt(remainder, 10) % 97 === 1;
+}
+\`\`\`
+
+Move the first 4 characters to the end, convert every letter to its numeric value (A=10 ... Z=35), and the resulting number mod 97 must equal 1. The chunked-modulo loop is the detail that trips up most from-scratch implementations — you can't just do \`BigInt(numeric) % 97n\` in older runtimes without a BigInt polyfill, and plain \`Number\` silently loses precision past 2^53.
+
+**3. What this does *not* tell you.** A passing checksum means the IBAN is well-formed — not that the account exists, is open, or belongs to who the payer thinks it does. Confirming that needs a live lookup against the bank (or a service like the account-name-matching checks banks now run for fraud prevention), which is a separate, heavier operation than format validation.
+
+For most apps — checkout forms, payout setup, onboarding — steps 1 and 2 are exactly the right amount of validation: fast, no external calls, no third-party uptime dependency. I wrapped both (plus the per-country BBAN structure check) into an endpoint on [Validate](https://${RAPIDAPI_HOST}) if you'd rather not own the mod-97 edge cases yourself.`,
+  },
+  {
+    title: "Stop using regex for phone validation - use this instead",
+    tags: ["webdev", "api", "javascript", "tutorial"],
+    body: `A regex for "valid phone number" is a trap. International phone numbering isn't regular: number length, valid area codes, and mobile-vs-landline prefixes differ per country and change over time as ranges get reassigned. A regex that's correct today starts silently misclassifying numbers months later, and you won't notice until a support ticket comes in.
+
+The actual fix is using the numbering-plan data Google publishes and maintains for Android/Chrome: [libphonenumber](https://github.com/google/libphonenumber), or its much smaller JS port [libphonenumber-js](https://github.com/catamphetamine/libphonenumber-js).
+
+\`\`\`js
+import { parsePhoneNumberFromString } from "libphonenumber-js";
+
+const phone = parsePhoneNumberFromString("+49 30 1234567");
+phone?.isValid();              // true — checks length + pattern for that country
+phone?.country;                // "DE"
+phone?.getType();               // "FIXED_LINE" | "MOBILE" | undefined (not always determinable)
+phone?.formatInternational();   // "+49 30 1234567", normalized
+\`\`\`
+
+Two things regex can't give you that this does for free:
+
+- **Country-aware validity.** "Valid length" isn't one number — it varies by country and sometimes by number type within a country. The library knows the real ranges, and gets updated when they change.
+- **Normalization.** Users type phone numbers a dozen different ways (spaces, dashes, parens, with or without country code). \`formatInternational()\` gives you one canonical form to store and compare against, instead of writing your own normalization pass.
+
+One gotcha: without a country hint, a local-format number is ambiguous. \`030 1234567\` is valid in Germany and might also just be a truncated something-else from another country. If your form is scoped to one country, pass it as the default country rather than relying purely on a \`+\` prefix being present.
+
+If your backend isn't JS (or you don't want the dependency in a small service), I wrapped libphonenumber-js as a hosted endpoint on [Validate](https://${RAPIDAPI_HOST}) — same validation logic, plain JSON in and out.`,
   },
 ];
 
