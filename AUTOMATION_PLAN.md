@@ -13,7 +13,7 @@ been deployed/posted live yet.
 | Reddit weekly drafts | `scripts/marketing/reddit-draft.mjs` | `reddit-draft-weekly.yml` (Mon 10:00 UTC) | Opens a GitHub issue with 4 drafts (one per subreddit, rotating style) — **does not post**, you post manually |
 | Revenue report | `scripts/marketing/revenue-report.mjs` | `revenue-report-daily.yml` (07:00 UTC daily) | Emails a summary via Resend, sourced from PayPal transactions |
 | API expansion proposals | `scripts/marketing/api-expansion-proposal.mjs` | `api-expansion-proposal-monthly.yml` (1st of month) | Opens a GitHub issue proposing 2 new endpoints — **does not write or deploy code** |
-| ProductHunt launch kit | `marketing/producthunt-launch-kit.md` | — (one-time, manual) | Tagline, description, first comment, launch checklist |
+| ProductHunt launch kit | `marketing/producthunt-launch-kit.md`, `marketing/qr-api-producthunt-launch-kit.md`, `marketing/currency-api-producthunt-launch-kit.md` | — (one-time, manual) | Tagline, description, first comment, launch checklist per API — Tuesday launches, staggered 2-3 weeks apart |
 | Show HN draft | `marketing/show-hn-draft.md` | — (one-time, manual) | Title + post body for you to post as yourself |
 | Directory submissions | `marketing/directory-submissions.md` | — | public-apis entry ready to PR on request; APIs.guru needs schema adaptation first; APIList.fun has no API, manual only |
 

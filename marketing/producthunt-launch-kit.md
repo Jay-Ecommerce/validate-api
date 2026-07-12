@@ -5,6 +5,28 @@ launches are a single event by design — repeated automated "updates" or
 re-launches violate their guidelines and risk the maker account, so this
 kit exists to make the one real launch day go smoothly, nothing more.
 
+**Three products, three separate launch kits.** QR API and Currency API
+have their own sibling kits — `qr-api-producthunt-launch-kit.md` and
+`currency-api-producthunt-launch-kit.md`, same directory. **Stagger the
+three launches on different weeks, not the same day or the same week.**
+PH community consensus (and the community's read of how the algorithm
+behaves) is that multiple simultaneous or near-simultaneous launches from
+one maker dilute each other — voter/comment attention splits across
+listings, and it can read as spammy to the "New" feed rather than as one
+maker with a focused, considered launch. One launch, let it fully run its
+24-hour cycle and settle, then wait at least 2-3 weeks before the next.
+Order doesn't matter much; Validate API is the most mature/highest-signal
+product so it's a reasonable one to lead with, but this is a judgment call
+for Jay to make, not a hard rule.
+
+**Best day: Tuesday.** PH community consensus (echoed across maker
+write-ups and PH's own stated traffic patterns) is that Tuesday gets the
+strongest engagement of the week — Monday launches compete with a backlog
+of weekend submissions and slower weekday-morning attention ramp-up,
+Wednesday-Friday taper off, and weekends are dead. Launch each of the
+three products on a **Tuesday**, spaced weeks apart per the staggering
+note above.
+
 ## Tagline (60 char max)
 
 `Validate IBAN, VAT, email, phone & cards in one API call`
@@ -48,6 +70,8 @@ Cloudflare's edge. Free tier, no card required.
 
 ## Launch day checklist
 
+- [ ] Launch on a **Tuesday** — best engagement day per PH community
+      consensus (see note above)
 - [ ] Post between 12:01–3:00 AM PT (PH's day resets at midnight PT; earlier
       launches get more of the 24-hour voting window)
 - [ ] Have 3-5 people you know ready to upvote/comment organically in the

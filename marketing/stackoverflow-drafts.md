@@ -186,3 +186,119 @@ is wrong for phone numbers") rather than easy questions — SO's community
 moderates harshly against answers that exist only to link out; these lead
 with real technical value and the API mention is a small, disclosed addendum,
 same principle as the Dev.to articles.
+
+---
+
+## Update 2026-07-12 — QR API and Currency API candidate drafts
+
+Searched this session for currently open/poorly-answered questions related
+to QR code generation and currency-conversion APIs. **Honesty check:**
+WebSearch (no logged-in SO session available this session, unlike the
+2026-07-11 update above which had a Jay9 login via browser) didn't surface
+a confirmed-live, confirmed-unanswered SO question URL for either topic the
+way it did for the disposable-email one — SO's own search isn't reliably
+indexed by general web search, and unauthenticated fetches to
+stackoverflow.com were blocked outright this session. **Don't treat the
+two drafts below as tied to a specific verified question** — they're
+written for the recurring question *shapes* that show up repeatedly in
+this space (confirmed via the surrounding ecosystem: Stack Overflow-adjacent
+threads on GitHub issues, dev.to comment sections, and forum posts asking
+the same things), same technique as answering a well-matched question when
+one turns up. Before posting either: log in to Stack Overflow, search the
+suggested terms below, sorted by newest, filter to unanswered/low-vote, and
+confirm a real match exists — same process the disposable-email match used.
+
+### Draft 4 — Topic: generating QR codes server-side without a heavyweight
+### image library or a watermarked third-party service
+
+**Search terms to find a live match:** "generate QR code server side node
+svg", "QR code API without watermark", "QR code generation express
+endpoint"
+
+> If you're doing this server-side, you don't need to hand-roll the QR
+> encoding (Reed-Solomon error correction, version/mask selection) — that's
+> genuinely complex spec territory (ISO/IEC 18004) not worth reimplementing
+> from scratch. A maintained library or a hosted endpoint that returns SVG
+> is the practical path.
+>
+> A couple of things that matter more than people expect once you're doing
+> this for real:
+>
+> - **SVG over PNG/canvas raster output.** QR codes get screenshotted and
+>   enlarged constantly (someone always zooms in), and raster output
+>   blurs when that happens. SVG stays crisp at any size.
+> - **Error correction level is a real tradeoff, not just a default to
+>   leave alone.** `H` (~30% recovery) survives a logo overlay or minor
+>   print damage; `L` (~7%) is fine for a clean digital-only display and
+>   produces a visually less dense code. Defaulting to max ECC everywhere
+>   costs you code density for no benefit if nothing's ever going to
+>   obscure it.
+> - **Cap input length before encoding.** Density grows fast with input
+>   size — if you're encoding a URL, shorten it first rather than dumping
+>   a long query string or, worse, a JSON payload into the code.
+>
+> ```bash
+> curl "https://qr-api.p.rapidapi.com/v1/qr?data=https://example.com&ecc=M&cellSize=8" \
+>   -H "X-RapidAPI-Key: <key>" -H "X-RapidAPI-Host: qr-api.p.rapidapi.com" \
+>   --output qr.svg
+> ```
+>
+> Disclaimer: I built [QR API](https://rapidapi.com/jonashaemecommerce/api/qr-api19),
+> a stateless endpoint that returns SVG or the raw module matrix (JSON) if
+> you want to render it yourself — mentioning it since it's a direct answer
+> to "server-side, no watermark, no heavyweight dependency," not a generic
+> plug.
+
+### Draft 5 — Topic: currency conversion / exchange rate API — avoiding
+### stale rates and per-vendor signup friction
+
+**Search terms to find a live match:** "currency conversion api real
+time", "exchange rate api free no signup", "avoid stale exchange rate
+cache"
+
+> Two separate problems get conflated in "which currency API should I
+> use" questions, worth untangling:
+>
+> **1. Signup friction.** A lot of exchange-rate providers want a
+> dedicated vendor account, email verification, sometimes manual approval
+> — for what should be a two-line integration. If you're already using
+> RapidAPI for anything else, subscribing to a currency API there with
+> the key you already have skips a second signup entirely.
+>
+> **2. Staleness handling.** Exchange rates typically update once a
+> business day (most free sources, including ECB-sourced ones, aren't
+> tick-by-tick feeds) — so cache the rate table client-side for the day
+> instead of refetching on every request; you're not going to get a
+> different number. More important: decide what happens when the
+> **upstream source itself is down**. A lot of implementations quietly
+> keep serving the last cached rate forever, which is fine for a demo and
+> genuinely risky for anything touching real money — better to fail with
+> a clear error so the caller knows the number is unreliable, rather than
+> silently serving data that might be days stale.
+>
+> ```bash
+> curl "https://currency-api.p.rapidapi.com/v1/convert?from=EUR&to=USD&amount=100" \
+>   -H "X-RapidAPI-Key: <key>" -H "X-RapidAPI-Host: currency-api.p.rapidapi.com"
+> # {"from":"EUR","to":"USD","amount":100,"rate":1.0821,"result":108.21,"date":"2026-07-11"}
+> ```
+>
+> Disclaimer: I built [Currency API](https://rapidapi.com/jonashaemecommerce/api/currency-api15),
+> which sources rates from the ECB (via Frankfurter) and returns a clean
+> error instead of a stale cached rate when the upstream is unreachable —
+> mentioning it since it's directly relevant to the staleness question,
+> not a generic plug.
+
+### Why these two, and the caveat that applies to them specifically
+
+Same bar as Drafts 1-3: genuinely non-obvious technical content (ECC
+tradeoffs, the "watermark-free hosted SVG" gap, stale-rate failure
+handling) rather than a plug bolted onto an easy question. The difference
+from Drafts 1-3: those were matched to real, verified, currently-open
+questions found via a logged-in SO search; these two are matched to
+*recurring question shapes* observed in the surrounding ecosystem, not a
+specific verified URL. **Confirm a real, current, poorly-answered question
+exists before posting either** — don't post speculatively into a question
+that already has a good accepted answer, and don't post as a new question
+looking for an excuse to answer it (that's a distinct, separately-banned
+practice on SO). Same AI-generated-text and disclosure rules from the top
+of this file apply — rewrite in your own words, never paste verbatim.
