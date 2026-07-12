@@ -37,11 +37,11 @@ const PAGE_HTML = `<!doctype html>
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Validate API — IBAN, VAT, Email, Phone, Postal Code &amp; Password Validation API</title>
-<meta name="description" content="A fast, reliable validation API for IBAN, EU VAT, email (incl. disposable-email detection), phone, credit card, postal code, and password strength. Free tier, pay-as-you-grow pricing on RapidAPI." />
+<title>Validate API — Email, IBAN, VAT, Phone &amp; Password Validation API</title>
+<meta name="description" content="The all-in-one validation API: email validation, IBAN, EU VAT, phone, credit card, postal code, and password strength — 9 checks, one key. Free tier, no credit card, on RapidAPI." />
 <link rel="canonical" href="https://validate-api.jay-trading.workers.dev/" />
-<meta property="og:title" content="Validate API — validation &amp; utility toolkit API" />
-<meta property="og:description" content="IBAN, VAT, email, disposable-email, phone, credit card, postal code, and password validation in one API." />
+<meta property="og:title" content="Validate API — email, IBAN, VAT, phone &amp; password validation in one API" />
+<meta property="og:description" content="9 validation checks (email, disposable-email, IBAN, VAT, phone, credit card, postal code, password) under one key. Free tier, no credit card required." />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://validate-api.jay-trading.workers.dev/" />
 <meta name="twitter:card" content="summary" />
@@ -56,6 +56,9 @@ const PAGE_HTML = `<!doctype html>
   button { padding: 0.6rem 1.2rem; border: none; border-radius: 6px; background: #1a1a1a; color: #fff; font-size: 1rem; cursor: pointer; }
   #signup-message { margin-top: 0.75rem; font-size: 0.9rem; }
   footer { margin-top: 3rem; font-size: 0.85rem; color: #666; }
+  table { border-collapse: collapse; width: 100%; margin: 1rem 0; font-size: 0.95rem; }
+  th, td { text-align: left; padding: 0.5rem 0.75rem; border: 1px solid #ddd; vertical-align: top; }
+  th { background: #f7f7f7; }
 </style>
 </head>
 <body>
@@ -90,10 +93,41 @@ const PAGE_HTML = `<!doctype html>
   <li><strong>Free tier with no credit card required</strong> to start evaluating.</li>
 </ul>
 
+<h2>Validate API vs. named alternatives</h2>
+<p>If you're evaluating the best email validation API, an IBAN validation API, or a general-purpose validation API, here's how Validate compares to well-known single-purpose validators:</p>
+<table>
+  <thead>
+    <tr><th>Provider</th><th>What it validates</th><th>Model</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><strong>Validate API</strong></td><td>Email, disposable-email, IBAN, EU VAT, phone, credit card, postal code, password strength, breach-check, plus UUID/password generation</td><td>One key, one bill, free tier, no credit card, edge-deployed on Cloudflare Workers</td></tr>
+    <tr><td>AbstractAPI</td><td>Email validation and phone validation</td><td>Separate APIs, each with its own subscription plan and rate limits</td></tr>
+    <tr><td>Mailgun Email Validation</td><td>Email syntax, deliverability &amp; risk scoring</td><td>Email only, typically used alongside Mailgun's email-sending platform</td></tr>
+    <tr><td>Twilio Lookup</td><td>Phone number validation &amp; carrier lookup</td><td>Phone only, usage-based pricing tied to a Twilio account</td></tr>
+  </tbody>
+</table>
+<p>The pattern with most single-purpose validators: great at one check, but stacking email + phone + IBAN + VAT + postal-code coverage means signing up for several of them, each with its own key, dashboard, and invoice. Validate covers all of it under one subscription — useful for signup forms, checkout flows, and EU B2B onboarding (VAT + IBAN) that need more than one kind of check.</p>
+
+<h2>Related APIs</h2>
+<p>Same provider, same edge-first approach, different tools:</p>
+<ul>
+  <li><a href="https://qr-api.jay-trading.workers.dev/">QR API</a> — QR code generation as a service.</li>
+  <li><a href="https://currency-api.jay-trading.workers.dev/">Currency API</a> — currency conversion &amp; exchange rates.</li>
+</ul>
+
 <h2>Changelog</h2>
 <ul>
   <li><strong>2026-07-08</strong> — Added <code>disposable-email</code> detection and <code>postal-code</code> format validation (50+ countries).</li>
   <li><strong>2026-07-07</strong> — Initial launch: IBAN, VAT, email, phone, credit card, password strength/breach-check, UUID/password generation.</li>
+</ul>
+
+<h2>Roadmap</h2>
+<p>Planned, not yet shipped:</p>
+<ul>
+  <li>Batch validation endpoint — validate multiple values in a single call</li>
+  <li>Webhook support for VIES and breach-check async results</li>
+  <li>Additional postal-code country coverage</li>
+  <li>Bulk CSV upload &amp; validation via a dashboard</li>
 </ul>
 
 <h2>Get updates</h2>
