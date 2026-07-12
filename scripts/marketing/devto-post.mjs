@@ -10,7 +10,16 @@ if (!API_KEY) {
   process.exit(1);
 }
 
-const article = pick(DEVTO_ARTICLES);
+const overrideIndex = process.env.ARTICLE_INDEX;
+const article =
+  overrideIndex !== undefined && overrideIndex !== ""
+    ? DEVTO_ARTICLES[Number(overrideIndex)]
+    : pick(DEVTO_ARTICLES);
+
+if (!article) {
+  console.error(`No article at index ${overrideIndex} (pool has ${DEVTO_ARTICLES.length} articles).`);
+  process.exit(1);
+}
 
 const res = await fetch("https://dev.to/api/articles", {
   method: "POST",
