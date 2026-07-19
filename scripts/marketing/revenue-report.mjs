@@ -1,4 +1,10 @@
-// Daily revenue summary, emailed via Resend.
+// Daily revenue summary, emailed via Resend. Runs from validate-api only —
+// qr-api and currency-api used to run byte-identical copies of this same
+// report (their revenue-report-daily.yml + revenue-report.mjs are now
+// deleted, 2026-07-19), because RapidAPI pays out via one shared PayPal
+// account per provider, not per API: the three reports always showed the
+// exact same account-wide number. Consolidated to a single daily email from
+// here instead of three near-identical ones, per Jonas's explicit call.
 //
 // IMPORTANT: RapidAPI's own analytics API (GraphQL Platform API) is
 // Enterprise-plan only — not available on a Basic/free provider account. It
@@ -70,9 +76,9 @@ if (!configured) {
 <p>Note: this tracks PayPal payouts, not RapidAPI's own subscriber/usage analytics — RapidAPI's Analytics API requires an Enterprise plan. Check the RapidAPI Studio dashboard directly for subscriber counts and per-endpoint usage.</p>`;
 } else {
   const { count, total } = summarize(transactions);
-  html = `<h2>Validate API — revenue report for ${today}</h2>
+  html = `<h2>Jay-Ecommerce — revenue report for ${today}</h2>
 <p><strong>${count}</strong> incoming PayPal transaction(s) in the last 24 hours, totaling <strong>$${total}</strong>.</p>
-<p>This is a PayPal-payout proxy, not RapidAPI's own analytics (which require an Enterprise plan). For subscriber counts and per-endpoint usage, check <a href="https://rapidapi.com/provider/12125802/apis/validate7/analytics">RapidAPI Studio</a> directly.</p>`;
+<p>This is one shared PayPal payout account across all three RapidAPI products (<a href="https://rapidapi.com/provider/12125802/apis/validate7/analytics">Validate API</a>, <a href="https://qr-api.jay-trading.workers.dev">QR API</a>, <a href="https://currency-api.jay-trading.workers.dev">Currency API</a>) — RapidAPI pays out per-provider, not per-API, so this number isn't attributable to one product. It's also not RapidAPI's own analytics (which require an Enterprise plan); check RapidAPI Studio directly for per-API subscriber counts and usage.</p>`;
 }
 
 const emailRes = await fetch("https://api.resend.com/emails", {
@@ -84,7 +90,7 @@ const emailRes = await fetch("https://api.resend.com/emails", {
   body: JSON.stringify({
     from: REPORT_FROM,
     to: REPORT_TO,
-    subject: `Validate API revenue report — ${today}`,
+    subject: `Jay-Ecommerce revenue report — ${today}`,
     html,
   }),
 });
