@@ -399,6 +399,35 @@ Running them in that order means you only pay for the disposable-domain check on
 
 I run this exact pipeline (syntax → MX → disposable-domain, each opt-in past the first) as an endpoint on [Validate](https://${RAPIDAPI_HOST}) with a synced domain list, if you'd rather not own the re-sync process yourself. Sibling APIs on the same account: [QR API](https://${QR_RAPIDAPI_HOST}) and [Currency API](https://${CURRENCY_RAPIDAPI_HOST}).`,
   },
+  {
+    title: "Validating a CSV of 500 emails or IBANs? Stop doing it one HTTP call at a time",
+    tags: ["webdev", "api", "tutorial", "javascript"],
+    body: `Cleaning a signup list or a vendor-payout CSV against a single-item validation endpoint means one HTTP round-trip per row — 500 rows means 500 requests, most of which burn through a rate limit before you're a quarter of the way through the file.
+
+The fix isn't a faster loop, it's an endpoint that accepts the whole array and validates it server-side in one call:
+
+\`\`\`bash
+curl -X POST https://validate-api.p.rapidapi.com/v1/batch/iban \\
+  -H "X-RapidAPI-Key: <your-key>" \\
+  -H "X-RapidAPI-Host: validate-api.p.rapidapi.com" \\
+  -H "Content-Type: application/json" \\
+  -d '{"ibans": ["DE89370400440532013000", "not-an-iban", "FR1420041010050500013M02606"]}'
+\`\`\`
+
+\`\`\`json
+{"count": 3, "results": [
+  {"input": "DE89370400440532013000", "valid": true, "countryCode": "DE", "errors": []},
+  {"input": "not-an-iban", "valid": false, "countryCode": null, "errors": ["IBAN contains invalid characters"]},
+  {"input": "FR1420041010050500013M02606", "valid": true, "countryCode": "FR", "errors": []}
+]}
+\`\`\`
+
+Same checksum logic as the single-item endpoint, just run once per array item instead of once per request — order-preserving output, so row *n* in the response always maps to row *n* in your input.
+
+One design choice worth calling out if you're building something similar: batch email validation defaults MX-record checking to **off**, unlike the single-item endpoint. A batch of 50 emails with MX checking on means 50 DNS lookups fired from one request — fine occasionally, not something you want as the default for a bulk endpoint. Opt in explicitly (\`checkMx: true\`) when you actually need it.
+
+I added \`/v1/batch/iban\` (up to 100 items) and \`/v1/batch/email\` (up to 50 items) to [Validate](https://${RAPIDAPI_HOST}) for exactly this list-cleaning use case — same free tier, no separate pricing for batch. Sibling APIs on the same account: [QR API](https://${QR_RAPIDAPI_HOST}) and [Currency API](https://${CURRENCY_RAPIDAPI_HOST}).`,
+  },
 ];
 
 export const LINKEDIN_POSTS = [

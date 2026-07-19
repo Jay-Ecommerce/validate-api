@@ -17,7 +17,7 @@ const STRUCTURED_DATA = {
   "@type": "WebAPI",
   name: "Validate API",
   description:
-    "Validation and utility toolkit API: IBAN, EU VAT, email, disposable-email detection, phone, credit card, postal code, password strength, and UUID generation.",
+    "Validation and utility toolkit API: IBAN, EU VAT, email, disposable-email detection, phone, credit card, postal code, password strength, and UUID generation. Includes bulk/batch endpoints for IBAN and email list cleaning.",
   url: "https://validate-api.jay-trading.workers.dev",
   offers: {
     "@type": "Offer",
@@ -79,6 +79,8 @@ const PAGE_HTML = `<!doctype html>
   <li><code>POST /v1/password/breach-check</code> — HaveIBeenPwned k-anonymity breach check</li>
   <li><code>GET /v1/generate/uuid</code> — UUID generation</li>
   <li><code>GET /v1/generate/password</code> — cryptographically random password generation</li>
+  <li><code>POST /v1/batch/iban</code> — validate up to 100 IBANs in one call</li>
+  <li><code>POST /v1/batch/email</code> — validate up to 50 emails in one call (syntax, optional MX)</li>
 </ul>
 
 <h2>Pricing</h2>
@@ -113,10 +115,12 @@ const PAGE_HTML = `<!doctype html>
 <ul>
   <li><a href="https://qr-api.jay-trading.workers.dev/">QR API</a> — QR code generation as a service.</li>
   <li><a href="https://currency-api.jay-trading.workers.dev/">Currency API</a> — currency conversion &amp; exchange rates.</li>
+  <li><a href="https://crypto-toolkit.jay-trading.workers.dev/">Crypto Toolkit</a> — free crypto trading calculators &amp; guides (position sizing, DCA simulation, tax estimate).</li>
 </ul>
 
 <h2>Changelog</h2>
 <ul>
+  <li><strong>2026-07-19</strong> — Added bulk validation: <code>POST /v1/batch/iban</code> and <code>POST /v1/batch/email</code>, for list-cleaning use cases without burning single-item rate limits.</li>
   <li><strong>2026-07-08</strong> — Added <code>disposable-email</code> detection and <code>postal-code</code> format validation (50+ countries).</li>
   <li><strong>2026-07-07</strong> — Initial launch: IBAN, VAT, email, phone, credit card, password strength/breach-check, UUID/password generation.</li>
 </ul>
@@ -124,7 +128,6 @@ const PAGE_HTML = `<!doctype html>
 <h2>Roadmap</h2>
 <p>Planned, not yet shipped:</p>
 <ul>
-  <li>Batch validation endpoint — validate multiple values in a single call</li>
   <li>Webhook support for VIES and breach-check async results</li>
   <li>Additional postal-code country coverage</li>
   <li>Bulk CSV upload &amp; validation via a dashboard</li>

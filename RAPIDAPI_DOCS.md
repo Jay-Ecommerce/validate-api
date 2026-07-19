@@ -213,6 +213,42 @@ values.
 
 ---
 
+## POST /v1/batch/iban
+
+**Description:** Validates up to 100 IBANs in a single call using the same
+ISO 13616 mod-97 checksum logic as `/v1/validate/iban`. No external calls —
+pure offline format validation, run once per item. Useful for cleaning a
+customer/vendor list without burning single-item rate limits.
+
+**Parameters:**
+- `ibans` (array of strings, required, max 100 items) — Example: `["DE89370400440532013000", "not-an-iban"]`
+
+**Example response:**
+```json
+{"count": 2, "results": [{"input": "DE89370400440532013000", "valid": true, "formatted": "DE89 3704 0044 0532 0130 00", "countryCode": "DE", "checkDigits": "89", "bban": "370400440532013000", "errors": []}, {"input": "not-an-iban", "valid": false, "formatted": null, "countryCode": null, "checkDigits": null, "bban": null, "errors": ["IBAN contains invalid characters"]}]}
+```
+
+---
+
+## POST /v1/batch/email
+
+**Description:** Validates up to 50 email addresses in a single call,
+reusing the same syntax check as `/v1/validate/email`. Unlike the
+single-item endpoint, MX record lookup defaults to **off** (`checkMx:
+false`) since a batch call can otherwise fan out into many DNS lookups at
+once — set `checkMx: true` to run it for every item in the batch.
+
+**Parameters:**
+- `emails` (array of strings, required, max 50 items) — Example: `["user@example.com", "not-an-email"]`
+- `checkMx` (boolean, optional, default `false`) — set `true` to also check MX records for every valid-syntax item
+
+**Example response:**
+```json
+{"count": 2, "results": [{"input": "user@example.com", "syntaxValid": true, "localPart": "user", "domain": "example.com", "errors": [], "mx": null}, {"input": "not-an-email", "syntaxValid": false, "localPart": null, "domain": null, "errors": ["Email does not match required syntax"], "mx": null}]}
+```
+
+---
+
 ## Authentication (applies to all `/v1/*` endpoints)
 
 All `/v1/*` endpoints require RapidAPI's own `X-RapidAPI-Key` (handled

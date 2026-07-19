@@ -376,6 +376,100 @@ paths:
                   length: { type: integer }
         "400": { $ref: "#/components/responses/BadRequest" }
 
+  /v1/batch/iban:
+    post:
+      operationId: batchValidateIban
+      summary: Validate up to 100 IBANs in a single call
+      description: >
+        Runs the same ISO 13616 mod-97 checksum validation as /v1/validate/iban
+        once per item. Pure offline format validation, no external calls.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [ibans]
+              properties:
+                ibans:
+                  type: array
+                  maxItems: 100
+                  items: { type: string }
+                  example: ["DE89370400440532013000", "not-an-iban"]
+      responses:
+        "200":
+          description: Batch validation results, in the same order as the input array
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count: { type: integer }
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        input: { type: string }
+                        valid: { type: boolean }
+                        formatted: { type: string, nullable: true }
+                        countryCode: { type: string, nullable: true }
+                        checkDigits: { type: string, nullable: true }
+                        bban: { type: string, nullable: true }
+                        errors: { type: array, items: { type: string } }
+        "400": { $ref: "#/components/responses/BadRequest" }
+
+  /v1/batch/email:
+    post:
+      operationId: batchValidateEmail
+      summary: Validate up to 50 emails in a single call
+      description: >
+        Runs the same syntax check as /v1/validate/email once per item. MX
+        record lookup defaults to off (unlike the single-item endpoint) since
+        a batch call can otherwise trigger many DNS lookups at once; set
+        checkMx=true to enable it for every item.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [emails]
+              properties:
+                emails:
+                  type: array
+                  maxItems: 50
+                  items: { type: string }
+                  example: ["user@example.com", "not-an-email"]
+                checkMx: { type: boolean, default: false }
+      responses:
+        "200":
+          description: Batch validation results, in the same order as the input array
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count: { type: integer }
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        input: { type: string }
+                        syntaxValid: { type: boolean }
+                        localPart: { type: string, nullable: true }
+                        domain: { type: string, nullable: true }
+                        errors: { type: array, items: { type: string } }
+                        mx:
+                          type: object
+                          nullable: true
+                          properties:
+                            checked: { type: boolean }
+                            hasMx: { type: boolean, nullable: true }
+                            records: { type: array, items: { type: string } }
+        "400": { $ref: "#/components/responses/BadRequest" }
+
 components:
   responses:
     BadRequest:

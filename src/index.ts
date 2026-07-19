@@ -7,6 +7,7 @@ import { healthRoute } from "./routes/health.js";
 import { validateRoute } from "./routes/validate.js";
 import { passwordRoute } from "./routes/password.js";
 import { generateRoute } from "./routes/generate.js";
+import { batchRoute } from "./routes/batch.js";
 import { landingRoute } from "./routes/landing.js";
 
 const app = new Hono<AuthEnv>();
@@ -30,5 +31,6 @@ app.use("/v1/*", localRateLimit);
 app.route("/", validateRoute);
 app.route("/", passwordRoute);
 app.route("/", generateRoute);
+app.route("/", batchRoute);
 
 export default app;
