@@ -430,15 +430,75 @@ I added \`/v1/batch/iban\` (up to 100 items) and \`/v1/batch/email\` (up to 50 i
   },
 ];
 
+const LINKEDIN_HASHTAGS = `#API #Developer #Webdev #SideProject`;
+
+// One post per entry, deliberately alternating which of the 3 products it's
+// about (Validate / QR API / Currency API) so the day-of-year-offset rotation
+// in linkedin-post.mjs naturally cycles through all three over a few weeks
+// instead of one product dominating. Every post links its own product's
+// RapidAPI listing and ends in the same hashtag block for a consistent,
+// recognizable company-page voice.
 export const LINKEDIN_POSTS = [
-  `Small thing I learned building a validation API: IBAN checksums (ISO 13616 mod-97) catch most typos with zero database lookups. No need to hit a bank API just to know a user fat-fingered a digit. Format validation and existence validation are different problems — solve the cheap one first.`,
-  `If you're checking passwords against breach databases, make sure you're using k-anonymity (HaveIBeenPwned's Pwned Passwords protocol) — you only ever send a 5-character hash prefix, never the password or full hash. Privacy-preserving security check, and it's genuinely simple to implement.`,
-  `Underrated fact: phone number validation cannot be done correctly with regex. Numbering plans differ by country, and libphonenumber (Google's library, powers Android) is really the only correct way to do this. Learned this the hard way building an API around it.`,
-  `Question for anyone who's shipped B2B signup flows in the EU: how do you handle VAT number validation? Format-check only, or do you also hit VIES for existence checks? I went with opt-in VIES since it's the flakier of the two calls and not every flow needs it.`,
-  `Built a small stateless validation API (IBAN/VAT/email/phone/credit-card format + password strength/breach checks) on Cloudflare Workers. No database, no session state — just deployed at the edge. Free tier live on RapidAPI if anyone wants to poke at it.`,
-  `Reminder that Luhn's checksum algorithm — the thing validating every credit card number's format — was patented in 1954. It only checks structural validity, nothing about whether the card is real or funded. Format validation and payment processing are very different layers.`,
-  `Entropy-based password strength scoring beats "must contain a symbol" rules every time. The composition-rule approach produces things like Password1! — technically compliant, trivially guessable. Estimating actual search space is a much better signal.`,
-  `Working on validation/utility APIs lately and the thing that surprised me most: MX record checks for email are almost free (one DNS lookup) but catch a real chunk of junk signups before you waste a verification email on a domain that can't receive mail.`,
+  `Small thing I learned building a validation API: IBAN checksums (ISO 13616 mod-97) catch most typos with zero database lookups. No need to hit a bank API just to know a user fat-fingered a digit. Format validation and existence validation are different problems — solve the cheap one first.
+
+Validate (IBAN/VAT/email/phone/card/password checks) on RapidAPI: https://${RAPIDAPI_HOST}
+
+${LINKEDIN_HASHTAGS}`,
+  `Generating QR codes server-side usually means pulling in a heavyweight image library. A QR code is really just a grid of black/white modules with Reed-Solomon error correction baked in — an SVG response is all you need, and it stays crisp at any zoom or print size, unlike a rasterized PNG.
+
+QR API (SVG or raw module-matrix output, free to start) on RapidAPI: https://${QR_RAPIDAPI_HOST}
+
+${LINKEDIN_HASHTAGS}`,
+  `Most currency-conversion needs in a typical app — pricing pages, invoicing, a rough converted total — don't need a live tick-by-tick FX feed. ECB reference rates (published once per business day) are free, stable, and honest about their own freshness, which matters more than people think for anything touching money.
+
+Currency API (ECB rates via a free keyless proxy) on RapidAPI: https://${CURRENCY_RAPIDAPI_HOST}
+
+${LINKEDIN_HASHTAGS}`,
+  `If you're checking passwords against breach databases, make sure you're using k-anonymity (HaveIBeenPwned's Pwned Passwords protocol) — you only ever send a 5-character hash prefix, never the password or full hash. Privacy-preserving security check, and it's genuinely simple to implement.
+
+Wrapped this into Validate on RapidAPI: https://${RAPIDAPI_HOST}
+
+${LINKEDIN_HASHTAGS}`,
+  `QR codes don't degrade gracefully as you stuff more data into them — they hit a capacity ceiling and the module grid gets denser the closer you get to it. Past a certain point you're not looking at a code you can scan from arm's length anymore. The fix is almost always encoding a short pointer (shortened URL, ID) instead of raw data.
+
+QR API caps input length for exactly this reason: https://${QR_RAPIDAPI_HOST}
+
+${LINKEDIN_HASHTAGS}`,
+  `A tempting shortcut when a currency API's rate source is unreachable: serve the last cached rate and let the request succeed anyway. For anything touching money, that's the wrong default — a stale rate returns 200 and looks identical to a correct one. An honest 502 beats a wrong-but-confident number every time.
+
+That's the principle Currency API is built on: https://${CURRENCY_RAPIDAPI_HOST}
+
+${LINKEDIN_HASHTAGS}`,
+  `Underrated fact: phone number validation cannot be done correctly with regex. Numbering plans differ by country, and libphonenumber (Google's library, powers Android) is really the only correct way to do this. Learned this the hard way building an API around it.
+
+That's what powers the phone endpoint on Validate: https://${RAPIDAPI_HOST}
+
+${LINKEDIN_HASHTAGS}`,
+  `Building a small stateless suite of developer APIs on Cloudflare Workers has been a good lesson in "no database" as a design choice, not just a cost-saver — every endpoint is a pure function or a single outbound call, so it scales horizontally for free and there's no session state to ever get out of sync.
+
+Validate, QR API, and Currency API — all free to start on RapidAPI: https://${RAPIDAPI_HOST}
+
+${LINKEDIN_HASHTAGS}`,
+  `Reminder that Luhn's checksum algorithm — the thing validating every credit card number's format — was patented in 1954. It only checks structural validity, nothing about whether the card is real or funded. Format validation and payment processing are very different layers, and conflating them is an easy mistake.
+
+Card format + brand detection is one endpoint on Validate: https://${RAPIDAPI_HOST}
+
+${LINKEDIN_HASHTAGS}`,
+  `Branded QR codes without touching a design tool: most "just generate a QR code" APIs don't expose color at all, which pushes recoloring into a manual post-processing step. Foreground/background as plain hex query params turns that into a one-line request instead.
+
+QR API supports that out of the box: https://${QR_RAPIDAPI_HOST}
+
+${LINKEDIN_HASHTAGS}`,
+  `Not every currency has 2 decimal places — JPY has zero, KWD has three. A hardcoded "always format to 2 decimals" assumption silently mangles both. Small edge case, real bug the first time a Japanese or Kuwaiti amount hits your checkout flow.
+
+Currency API's /v1/currencies always reflects the actual current supported set: https://${CURRENCY_RAPIDAPI_HOST}
+
+${LINKEDIN_HASHTAGS}`,
+  `Entropy-based password strength scoring beats "must contain a symbol" rules every time. The composition-rule approach produces things like Password1! — technically compliant, trivially guessable. Estimating actual search space is a much better signal, and it's not hard to build.
+
+That scoring plus breach-checking lives on Validate: https://${RAPIDAPI_HOST}
+
+${LINKEDIN_HASHTAGS}`,
 ];
 
 export const REDDIT_STYLES = ["tutorial", "question", "case-study", "tip"];

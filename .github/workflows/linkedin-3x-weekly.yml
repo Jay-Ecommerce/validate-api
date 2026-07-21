@@ -1,13 +1,20 @@
 name: LinkedIn 3x/week posts
 
-# Schedule disabled 2026-07-11: LinkedIn's Share API requires posting to a
-# Company Page, which this account doesn't have yet (needs more connections
-# first). Re-add the schedule block below once the Company Page exists.
-#  schedule:
-#    - cron: "0 14 * * 1" # Monday 14:00 UTC
-#    - cron: "0 14 * * 3" # Wednesday 14:00 UTC
-#    - cron: "0 14 * * 5" # Friday 14:00 UTC
+# Schedule re-enabled 2026-07-21: the JayEdge Company Page now exists, so
+# posting-as-organization (see linkedin-post.mjs) is possible once
+# LINKEDIN_ACCESS_TOKEN and LINKEDIN_ORG_URN are set as repo secrets (see
+# docs/linkedin-setup.md). Until those secrets exist, these runs will fail
+# fast with a clear "not set" message rather than post anything.
+#
+# Offset off round minutes (:12/:19/:26, not :00) since GitHub Actions
+# schedules are best-effort and round-minute triggers see heavy global
+# contention — this bit the Dev.to weekly workflow (silently didn't fire one
+# week) before the same fix was applied there.
 on:
+  schedule:
+    - cron: "12 14 * * 1" # Monday 14:12 UTC
+    - cron: "19 14 * * 3" # Wednesday 14:19 UTC
+    - cron: "26 14 * * 5" # Friday 14:26 UTC
   workflow_dispatch: {}
 
 jobs:
@@ -21,4 +28,4 @@ jobs:
       - run: node scripts/marketing/linkedin-post.mjs
         env:
           LINKEDIN_ACCESS_TOKEN: ${{ secrets.LINKEDIN_ACCESS_TOKEN }}
-          LINKEDIN_PERSON_URN: ${{ secrets.LINKEDIN_PERSON_URN }}
+          LINKEDIN_ORG_URN: ${{ secrets.LINKEDIN_ORG_URN }}
