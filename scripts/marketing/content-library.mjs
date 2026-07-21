@@ -45,7 +45,7 @@ function ibanChecksumValid(iban) {
 
 Fine for a side project. Once you're validating IBANs from real users, you also want country-specific length checks, BBAN structure validation, and ideally a formatted, human-readable output — which is more code than you want to own for something this boilerplate.
 
-If you'd rather not maintain that: [Validate](https://${RAPIDAPI_HOST}) is a small API I built that handles this (plus VAT/email/phone/credit-card format checks) as a single JSON call. Free tier is 100 requests/month, no card required.`,
+If you'd rather not maintain that: [Validate](https://${RAPIDAPI_HOST}) is a small API I built that handles this (plus VAT/email/phone/credit-card format checks) as a single JSON call. Free tier is 100 requests/month, no card required. Same account also runs [QR API](https://${QR_RAPIDAPI_HOST}) (QR code generation) and [Currency API](https://${CURRENCY_RAPIDAPI_HOST}) (exchange rates) if useful.`,
   },
   {
     title: "Stop rolling your own password breach checker — here's how k-anonymity makes it safe",
@@ -67,7 +67,7 @@ async function isBreached(password) {
 }
 \`\`\`
 
-That's genuinely all it takes — no library needed. I wrapped this (plus password strength scoring) into an endpoint on [Validate](https://${RAPIDAPI_HOST}) if you'd rather not maintain the hashing/comparison logic yourself, but honestly, the snippet above will get most people there.`,
+That's genuinely all it takes — no library needed. I wrapped this (plus password strength scoring) into an endpoint on [Validate](https://${RAPIDAPI_HOST}) if you'd rather not maintain the hashing/comparison logic yourself, but honestly, the snippet above will get most people there. Sibling APIs on the same account: [QR API](https://${QR_RAPIDAPI_HOST}) and [Currency API](https://${CURRENCY_RAPIDAPI_HOST}).`,
   },
   {
     title: "Phone number validation is harder than you think (a libphonenumber crash course)",
@@ -85,7 +85,7 @@ console.log(parsed.formatInternational()); // "+49 170 1234567"
 
 Two gotchas that catch people out: numbers without a country code need a \`defaultCountry\` hint or parsing will silently fail, and "valid" only means "matches the numbering plan" — it says nothing about whether the number is currently assigned to someone.
 
-For a stateless HTTP version of this (useful if your stack isn't JS, or you don't want the dependency), I built it as one of the endpoints on [Validate](https://${RAPIDAPI_HOST}) — same libphonenumber-js under the hood, just over JSON.`,
+For a stateless HTTP version of this (useful if your stack isn't JS, or you don't want the dependency), I built it as one of the endpoints on [Validate](https://${RAPIDAPI_HOST}) — same libphonenumber-js under the hood, just over JSON. Same account also covers [QR API](https://${QR_RAPIDAPI_HOST}) and [Currency API](https://${CURRENCY_RAPIDAPI_HOST}).`,
   },
   {
     title: "EU VAT number validation: format check vs VIES lookup, and when you need which",
@@ -103,7 +103,7 @@ POST /v1/validate/vat
 { "countryCode": "IE", "vatNumber": "6388047V", "checkExistence": true }
 \`\`\`
 
-That's the shape I settled on for [Validate](https://${RAPIDAPI_HOST}) — format check always runs, VIES lookup is opt-in per request so you're not waiting on a flaky government API when you don't need to.`,
+That's the shape I settled on for [Validate](https://${RAPIDAPI_HOST}) — format check always runs, VIES lookup is opt-in per request so you're not waiting on a flaky government API when you don't need to. Sibling APIs on the same account: [QR API](https://${QR_RAPIDAPI_HOST}) and [Currency API](https://${CURRENCY_RAPIDAPI_HOST}).`,
   },
   {
     title: "Entropy-based password strength scoring (and why 'has a symbol' rules are theater)",
@@ -126,7 +126,7 @@ function estimateEntropyBits(password) {
 
 That's the naive version — it overestimates for anything with patterns. A real implementation should also penalize repeated substrings and common dictionary words before trusting the raw bits figure.
 
-I built a fuller version of this (plus the breach-check endpoint from k-anonymity) as part of [Validate](https://${RAPIDAPI_HOST}) if you want the batteries-included version.`,
+I built a fuller version of this (plus the breach-check endpoint from k-anonymity) as part of [Validate](https://${RAPIDAPI_HOST}) if you want the batteries-included version. Same account also runs [QR API](https://${QR_RAPIDAPI_HOST}) and [Currency API](https://${CURRENCY_RAPIDAPI_HOST}).`,
   },
   {
     title: "Luhn's algorithm: the 70-year-old checksum still validating every card you own",
@@ -149,7 +149,7 @@ function luhnValid(number) {
 
 This only checks that the number is *structurally* valid — it says nothing about whether the card exists, is active, or has funds. That's a completely separate (and much more sensitive) concern that needs a real payment processor, not a format checker.
 
-Brand detection (Visa vs Mastercard vs Amex) is a second, separate step based on the IIN/BIN prefix ranges. I bundled both into one endpoint on [Validate](https://${RAPIDAPI_HOST}) since they're almost always needed together.`,
+Brand detection (Visa vs Mastercard vs Amex) is a second, separate step based on the IIN/BIN prefix ranges. I bundled both into one endpoint on [Validate](https://${RAPIDAPI_HOST}) since they're almost always needed together. Same account also runs [QR API](https://${QR_RAPIDAPI_HOST}) and [Currency API](https://${CURRENCY_RAPIDAPI_HOST}).`,
   },
   {
     title: "Why I put input validation behind an API instead of a shared npm package",
@@ -163,7 +163,7 @@ A few reasons that mattered to me:
 
 The tradeoff is obviously latency — a network round-trip beats a local function call every time. For anything on a hot path doing thousands of validations per second, a local library is the right call. For "validate this form submission once," the API overhead is noise.
 
-If you want to see the actual shape of it: [Validate on RapidAPI](https://${RAPIDAPI_HOST}) — free tier, no card required. Source structure is public too: ${GITHUB_URL}`,
+If you want to see the actual shape of it: [Validate on RapidAPI](https://${RAPIDAPI_HOST}) — free tier, no card required. Source structure is public too: ${GITHUB_URL}. Same account also runs [QR API](https://${QR_RAPIDAPI_HOST}) and [Currency API](https://${CURRENCY_RAPIDAPI_HOST}).`,
   },
   {
     title: "MX record checks: the cheap email validation step everyone skips",
@@ -185,7 +185,7 @@ async function domainCanReceiveMail(domain) {
 
 This won't catch every typo (an MX record existing doesn't mean the specific mailbox exists — that needs an actual SMTP handshake, which is slow, unreliable, and often blocked by mail servers as spam-probing behavior). But it's a strong, cheap signal that catches a meaningful chunk of junk signups before you send a verification email into the void.
 
-I run this as an optional flag on the email endpoint of [Validate](https://${RAPIDAPI_HOST}) — syntax check always runs, MX check is opt-in since it adds a DNS round-trip.`,
+I run this as an optional flag on the email endpoint of [Validate](https://${RAPIDAPI_HOST}) — syntax check always runs, MX check is opt-in since it adds a DNS round-trip. Sibling APIs on the same account: [QR API](https://${QR_RAPIDAPI_HOST}) and [Currency API](https://${CURRENCY_RAPIDAPI_HOST}).`,
   },
   {
     title: "How to validate email addresses properly in 2026",
@@ -222,7 +222,7 @@ Catches typo'd domains (\`gmial.com\`) and abandoned/fake domains for basically 
 
 **4. What you're deliberately *not* doing:** an SMTP handshake to check if the specific mailbox exists. It's slow, unreliable, and most mail servers now treat probing behavior as spam reconnaissance and silently no-op it. Don't build on a foundation that stopped being reliable.
 
-Put together, that's syntax (fast, always run) → MX (cheap, catches typos) → disposable-domain check (catches throwaway signups) — each step only worth running if the previous one passed. I built exactly this pipeline as endpoints on [Validate](https://${RAPIDAPI_HOST}) if you'd rather not maintain the MX/disposable-list plumbing yourself.`,
+Put together, that's syntax (fast, always run) → MX (cheap, catches typos) → disposable-domain check (catches throwaway signups) — each step only worth running if the previous one passed. I built exactly this pipeline as endpoints on [Validate](https://${RAPIDAPI_HOST}) if you'd rather not maintain the MX/disposable-list plumbing yourself. Same account also runs [QR API](https://${QR_RAPIDAPI_HOST}) and [Currency API](https://${CURRENCY_RAPIDAPI_HOST}).`,
   },
   {
     title: "IBAN validation guide for developers",
@@ -256,7 +256,7 @@ Move the first 4 characters to the end, convert every letter to its numeric valu
 
 **3. What this does *not* tell you.** A passing checksum means the IBAN is well-formed — not that the account exists, is open, or belongs to who the payer thinks it does. Confirming that needs a live lookup against the bank (or a service like the account-name-matching checks banks now run for fraud prevention), which is a separate, heavier operation than format validation.
 
-For most apps — checkout forms, payout setup, onboarding — steps 1 and 2 are exactly the right amount of validation: fast, no external calls, no third-party uptime dependency. I wrapped both (plus the per-country BBAN structure check) into an endpoint on [Validate](https://${RAPIDAPI_HOST}) if you'd rather not own the mod-97 edge cases yourself.`,
+For most apps — checkout forms, payout setup, onboarding — steps 1 and 2 are exactly the right amount of validation: fast, no external calls, no third-party uptime dependency. I wrapped both (plus the per-country BBAN structure check) into an endpoint on [Validate](https://${RAPIDAPI_HOST}) if you'd rather not own the mod-97 edge cases yourself. Sibling APIs on the same account: [QR API](https://${QR_RAPIDAPI_HOST}) and [Currency API](https://${CURRENCY_RAPIDAPI_HOST}).`,
   },
   {
     title: "Stop using regex for phone validation - use this instead",
@@ -282,7 +282,7 @@ Two things regex can't give you that this does for free:
 
 One gotcha: without a country hint, a local-format number is ambiguous. \`030 1234567\` is valid in Germany and might also just be a truncated something-else from another country. If your form is scoped to one country, pass it as the default country rather than relying purely on a \`+\` prefix being present.
 
-If your backend isn't JS (or you don't want the dependency in a small service), I wrapped libphonenumber-js as a hosted endpoint on [Validate](https://${RAPIDAPI_HOST}) — same validation logic, plain JSON in and out.`,
+If your backend isn't JS (or you don't want the dependency in a small service), I wrapped libphonenumber-js as a hosted endpoint on [Validate](https://${RAPIDAPI_HOST}) — same validation logic, plain JSON in and out. Same account also runs [QR API](https://${QR_RAPIDAPI_HOST}) and [Currency API](https://${CURRENCY_RAPIDAPI_HOST}).`,
   },
   {
     title: "How to generate QR codes for free with an API",

@@ -2,7 +2,7 @@ name: Dev.to weekly article
 
 on:
   schedule:
-    - cron: "0 9 * * 2" # Tuesdays 09:00 UTC
+    - cron: "17 9 * * 2" # Tuesdays 09:17 UTC — offset off :00 since round-minute schedules see heavy GH-wide contention (this one ran 4h late on 07-14 and was dropped entirely on 07-21)
   workflow_dispatch:
     inputs:
       article_index:
