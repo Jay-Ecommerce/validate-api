@@ -11,10 +11,32 @@ if (!API_KEY) {
 }
 
 const overrideIndex = process.env.ARTICLE_INDEX;
-const article =
-  overrideIndex !== undefined && overrideIndex !== ""
-    ? DEVTO_ARTICLES[Number(overrideIndex)]
-    : pick(DEVTO_ARTICLES);
+let article;
+
+if (overrideIndex !== undefined && overrideIndex !== "") {
+  article = DEVTO_ARTICLES[Number(overrideIndex)];
+} else {
+  // ISO-week-number rotation alone isn't enough to guarantee variety: the pool
+  // grows over time, so `week % pool.length` can land on the same index in two
+  // different weeks purely by coincidence (this actually happened — the same
+  // article got auto-posted on 2026-07-14 and would have again on 2026-07-21).
+  // Check against what's actually live on Dev.to and skip forward past any
+  // title already published, rather than trusting the modulo alone.
+  const publishedRes = await fetch(
+    `https://dev.to/api/articles/me/published?_cb=${Date.now()}`, // cache-busts a dev.to CDN bug that can serve a stale cached 401
+    { headers: { "api-key": API_KEY, "Accept-Encoding": "identity" } },
+  );
+  const publishedTitles = publishedRes.ok
+    ? new Set((await publishedRes.json()).map((a) => a.title))
+    : new Set(); // if this lookup fails, fall back to plain rotation rather than blocking the post
+
+  let candidate;
+  for (let offset = 0; offset < DEVTO_ARTICLES.length; offset++) {
+    candidate = pick(DEVTO_ARTICLES, offset);
+    if (!publishedTitles.has(candidate.title)) break;
+  }
+  article = candidate; // if every title's already published, the full rotation is done — repeating is fine
+}
 
 if (!article) {
   console.error(`No article at index ${overrideIndex} (pool has ${DEVTO_ARTICLES.length} articles).`);
